@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vnf1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vnf1
+  template:
+    metadata:
+      labels:
+        app: vnf1
+        chainPosition: "1"
+        targetNode: node2
+        minBandwidth: "100"
+        policy: location
+        totalService: "3"
+        nextService: vnf2
+        sfcName: test_sfc1
+    spec:
+      schedulerName: sfc-scheduler
+      containers:
+        - image: nginx
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vnf2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vnf2
+  template:
+    metadata:
+      labels:
+        app: vnf2
+        chainPosition: "2"
+#        targetNode: node2
+        minBandwidth: "100"
+        policy: latency
+        totalService: "3"
+        nextService: vnf3
+        prevService: vnf1
+        sfcName: test_sfc1
+    spec:
+      schedulerName: sfc-scheduler
+      containers:
+        - image: nginx
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vnf3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vnf3
+  template:
+    metadata:
+      labels:
+        app: vnf3
+        chainPosition: "3"
+        targetNode: node2
+        minBandwidth: "100"
+        policy: location
+        totalService: "3"
+        prevService: vnf2
+        sfcName: test_sfc1
+    spec:
+      schedulerName: sfc-scheduler
+      containers:
+        - image: nginx
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+            - containerPort: 80
